@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "NODE_ENV=development next dev",
-    "build": "ts-node generate.ts && next build",
+    "build": "npm run bot:connect && next build",
     "start": "next start",
-    "bot:connect": "ts-node generate.ts"
+    "bot:connect": "ts-node src/app/utils/generate.ts"
   },
   "dependencies": {
     "axios": "^0.23.0",

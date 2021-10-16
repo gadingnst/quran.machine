@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 
 require('dotenv').config();
-import InstagramSetup from './src/app/utils/InstagramSetup';
+import InstagramSetup from './InstagramSetup';
 
 console.info('> Conecting to Instagram Account..');
 InstagramSetup(true).then(() => {
