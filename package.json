@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "NODE_ENV=development next dev",
-    "build": "next build",
+    "build": "ts-node generate.ts && next build",
     "start": "next start",
-    "postinstall": "ts-node generate.ts",
     "bot:connect": "ts-node generate.ts"
   },
   "dependencies": {
