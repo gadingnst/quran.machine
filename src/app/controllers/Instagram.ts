@@ -80,7 +80,7 @@ class InstagramController extends Controller {
       caption = `${translation} — ${nameSurah} (${nameSurahId}) [QS.${surah}:${ayat}]\n.\n.\n${this.getRandomTags()}`;
     }
 
-    const file = <Buffer> await getScreenshot(`https://quran.com/${surah}/${ayat}?translations=20`);
+    const file = await getScreenshot({ surah, ayat });
     console.info(`> Surah Prepared: Q.S ${surah}:${ayat}`);
 
     const { latitude, longitude, searchQuery } = {
@@ -91,7 +91,7 @@ class InstagramController extends Controller {
     };
 
     console.info('> Publishing surah...');
-    const instagram = await this.setup().catch((errs) => { console.log(errs); }) as any;
+    const instagram = await this.setup();
     const [location] = await instagram.search.location(latitude, longitude, searchQuery);
 
     try {

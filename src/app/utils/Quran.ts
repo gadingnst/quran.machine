@@ -2,10 +2,8 @@
 // Key: {surah}.{ayat}
 // Value: translation
 
-import Jimp from 'jimp';
-import { Page } from 'puppeteer';
-import Puppeteer from './Puppeteer';
-import { IS_PRODUCTION } from 'utils/config';
+import Axios from 'axios';
+import { SCREENSHOT_API } from 'utils/config';
 import quran from 'app/data/quran-tafsir.json';
 
 export type ImageType = 'jpeg'|'png'
@@ -28,54 +26,9 @@ export type QuranJSON = {
   }
 }
 
-const setPageWidth = (page: Page, width: number) => page.setViewport({
-  width,
-  height: 680,
-  deviceScaleFactor: 1
-});
-
-async function screenshotAyat(page: Page, type: ImageType) {
-  const ayat = await page.$('main');
-  const height = await page.evaluate(() => {
-    const target = document.querySelector('#verses-translation');
-    const settings: any = document.querySelector('main > div.surah-actions div.nav-button');
-    const readingButtons: any = document.querySelector('#verses-translation_pagination');
-    settings && (settings.style.display = 'none');
-    readingButtons && (readingButtons.style.display = 'none');
-    return target?.scrollHeight;
-  }) || 0;
-
-  if (height > 1000) {
-    await setPageWidth(page, 1600);
-  } else if (height > 500) {
-    await setPageWidth(page, 1280);
-  } else if (height < 350) {
-    await setPageWidth(page, 480);
-  }
-
-  return ayat?.screenshot({ type });
-}
-
-export async function getScreenshot(url: string, type: ImageType = 'jpeg') {
-  const browser = await Puppeteer();
-  const possibleColors = ['red', 'green', 'blue'];
-  try {
-    const page = await browser.newPage();
-    await setPageWidth(page, 640);
-    await page.goto(url, { waitUntil: 'load', timeout: 0 });
-    const file = await screenshotAyat(page, type);
-    const image = await Jimp.read(file as Buffer);
-    return image
-      .color([{
-        apply: <any>possibleColors[~~(Math.random() * possibleColors.length)],
-        params: [~~(Math.random() * 100)]
-      }])
-      .getBufferAsync(Jimp.AUTO as any);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    IS_PRODUCTION && browser.close();
-  }
+export type ScreenShotParams = {
+  surah: number|string
+  ayat: number|string
 }
 
 export const getRandomAyatFairly = () => {
@@ -95,6 +48,20 @@ export const getRandomAyatFairly = () => {
     translation,
     tafsir
   };
+};
+
+export const getScreenshot = async (params: ScreenShotParams) => {
+  const { surah, ayat } = params;
+  try {
+    const response = await Axios.get(`${SCREENSHOT_API}/screenshot/${surah}/${ayat}`, {
+      responseType: 'arraybuffer'
+    });
+    const buffer = Buffer.from(response.data as string, 'base64');
+    console.log({ buffer });
+    return buffer;
+  } catch (err) {
+    console.error({ err });
+  }
 };
 
 const Quran = {

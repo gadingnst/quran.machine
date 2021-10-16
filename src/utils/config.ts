@@ -15,5 +15,6 @@ export const {
 
 export const IS_PRODUCTION = NODE_ENV === 'production';
 export const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+export const SCREENSHOT_API = 'https://puppet.quran-machine.sutanlab.id';
 export const WEBHOOK_URL = `${PUBLIC_URL}/api/telegram/webhook?token=${TELEGRAM_BOT_TOKEN}`;
 export const COOKIES_PATH = process.cwd() + '/src/app/data/cookies.json';
