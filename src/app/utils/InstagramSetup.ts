@@ -47,7 +47,7 @@ const InstagramSetup = async (generator = false) => {
   } catch (reason) {
     if (!generator) {
       if (!reason.cache) throw reason;
-      const loginCookies = require('app/data/cookies.json');
+      const loginCookies = await Fs.promises.readFile(COOKIES_PATH, { encoding: 'utf-8' });
       await ig.state.deserializeCookieJar(loginCookies);
     }
   }
