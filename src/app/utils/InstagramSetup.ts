@@ -3,7 +3,7 @@
 
 import Fs from 'fs';
 import { IgApiClient } from 'instagram-private-api';
-import { IG_PROXY, IG_USERNAME, IG_PASSWORD, COOKIES_PATH } from '../../utils/config';
+import { IG_PROXY, IG_USERNAME, IG_PASSWORD, COOKIES_PATH, IG_SESSION } from '../../utils/config';
 
 const InstagramSetup = async (generator = false) => {
   const ig = new IgApiClient();
@@ -47,7 +47,7 @@ const InstagramSetup = async (generator = false) => {
   } catch (reason) {
     if (!generator) {
       if (!reason.cache) throw reason;
-      const loginCookies = await Fs.promises.readFile(COOKIES_PATH, { encoding: 'utf-8' });
+      const loginCookies = IG_SESSION || await Fs.promises.readFile(COOKIES_PATH, { encoding: 'utf-8' });
       await ig.state.deserializeCookieJar(loginCookies);
     }
   }

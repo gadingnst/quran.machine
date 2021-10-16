@@ -9,6 +9,7 @@ export const {
   IG_PROXY,
   IG_USERNAME,
   IG_PASSWORD,
+  IG_SESSION,
   TELEGRAM_BOT_TOKEN
 } = process.env;
 
