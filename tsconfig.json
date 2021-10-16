@@ -34,5 +34,10 @@
     "node_modules",
     "dist",
     ".next"
-  ]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
 }

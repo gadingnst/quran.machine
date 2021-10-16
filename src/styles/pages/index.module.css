@@ -1,0 +1,39 @@
+.main-content {
+  background-image: url('https://www.madaninews.id/wp-content/uploads/2018/10/Gambar-Al-Quran-8.jpg');
+  @apply
+    min-h-screen
+    flex
+    items-center
+    justify-center
+    bg-center
+    bg-black
+    bg-cover;
+}
+
+.content {
+  @apply
+    bg-black
+    text-white
+    bg-opacity-50
+    px-5
+    rounded-md;
+}
+
+.title {
+  @apply
+    text-xl
+    text-center
+    mb-4;
+}
+
+.text {
+  @apply
+    text-center underline;
+}
+
+.copyright {
+  @apply
+    mt-8
+    text-xs
+    text-center;
+}
