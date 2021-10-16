@@ -19,7 +19,7 @@ const Home: NextPage = () => {
             Qur&apos;an Machine (BOT)
           </p>
           <p className={styles['text']}>
-            <a href="https://github.com/sutanlab/quran-machine">Source Code</a>
+            <a href="https://github.com/sutanlab/quran.machine">Source Code</a>
           </p>
           <p className={styles['text']}>
             <a href="https://instagram.com/quran.machine">Instagram Account</a>
