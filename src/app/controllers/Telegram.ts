@@ -111,7 +111,7 @@ class TelegramController extends Controller {
         '/publish': this.publishRandom
       };
       if (command && command in commandList) {
-        commandList[command](response);
+        await commandList[command](response);
       } else {
         bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
       }
