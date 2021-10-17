@@ -60,6 +60,7 @@ export const getScreenshot = async (params: ScreenShotParams) => {
     return buffer;
   } catch (err) {
     console.error({ err });
+    throw err;
   }
 };
 
