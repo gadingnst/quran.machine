@@ -104,13 +104,13 @@ class TelegramController extends Controller {
     const response: TelegramBotListenerResponse = req.body;
     const bot = this.bot();
     if (response?.message) {
-      const [command] = response?.message?.text.split(' ');
+      const [command] = response?.message?.text?.split(' ');
       const commandList = {
         '/start': this.botStart,
         '/restart': this.botStart,
         '/publish': this.publishRandom
       };
-      if (command in commandList) {
+      if (command && command in commandList) {
         await commandList[command](response);
       } else {
         await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
@@ -131,6 +131,9 @@ class TelegramController extends Controller {
     if (!processing) {
       processing = true;
       try {
+        setTimeout(() => {
+          throw { timeout: true };
+        }, 9000);
         const processMsg = await bot.sendMessage(chatId, 'Please wait...');
         const result = await Instagram.publishPost();
         const postUrl = `https://www.instagram.com/p/${result.media.code}`;
@@ -141,6 +144,10 @@ class TelegramController extends Controller {
         return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
       } catch (err) {
         console.error(err);
+        if (processing && err.timeout) {
+          processing = false;
+          return bot.sendMessage(chatId, 'Request timeout. Please try again.');
+        }
         return bot.sendMessage(chatId, `Something went wrong. Try again later. (${JSON.stringify(err, null, 2)})`);
       }
     } else {
