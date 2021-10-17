@@ -78,8 +78,9 @@ interface TelegramBotListenerResponse {
 }
 
 class TelegramController extends Controller {
-  private bot = new Telegraf(TELEGRAM_BOT_TOKEN).telegram
-
+  private bot = () => {
+    return new Telegraf(TELEGRAM_BOT_TOKEN).telegram;
+  }
   public webhookInit = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const {
@@ -104,22 +105,22 @@ class TelegramController extends Controller {
     if (command in commandList) {
       commandList[command](response);
     } else {
-      this.bot.sendMessage(response.message.chat.id, 'I dont get it. Please only use commands 😅');
+      this.bot().sendMessage(response.message.chat.id, 'I dont get it. Please only use commands 😅');
     }
     res.end();
   }
 
   private publishRandom = async (response: TelegramBotListenerResponse) => {
     const chatId = response.message.chat.id;
-    const processMsg = await this.bot.sendMessage(response.message.chat.id, 'Please wait...');
+    const processMsg = await this.bot().sendMessage(response.message.chat.id, 'Please wait...');
     try {
       const result = await Instagram.publishPost();
       const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-      this.bot.deleteMessage(chatId, processMsg.message_id);
-      this.bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+      this.bot().deleteMessage(chatId, processMsg.message_id);
+      this.bot().sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
     } catch (err) {
       console.error(err);
-      this.bot.sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
+      this.bot().sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
     }
   }
 }
