@@ -116,11 +116,11 @@ class TelegramController extends Controller {
     try {
       const result = await Instagram.publishPost();
       const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-      this.bot().deleteMessage(chatId, processMsg.message_id);
-      this.bot().sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+      await this.bot().deleteMessage(chatId, processMsg.message_id);
+      return this.bot().sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
     } catch (err) {
       console.error(err);
-      this.bot().sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
+      return this.bot().sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
     }
   }
 }
