@@ -144,14 +144,14 @@ class TelegramController extends Controller {
     const chatId = response.message.chat.id;
     if (!processing) {
       processing = true;
+      setTimeout(() => {
+        processing = false;
+      }, 60000 * 5);
       try {
         const processMsg = await bot.sendMessage(response.message.chat.id, 'Please wait...');
         return Instagram.publishPost().then((result) => {
           const postUrl = `https://www.instagram.com/p/${result.media.code}`;
           bot.deleteMessage(chatId, processMsg.message_id);
-          setTimeout(() => {
-            processing = false;
-          }, 60000 * 5);
           return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
         });
       } catch (err) {
