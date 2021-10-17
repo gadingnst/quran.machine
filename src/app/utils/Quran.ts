@@ -57,7 +57,6 @@ export const getScreenshot = async (params: ScreenShotParams) => {
       responseType: 'arraybuffer'
     });
     const buffer = Buffer.from(response.data as string, 'base64');
-    console.log({ buffer });
     return buffer;
   } catch (err) {
     console.error({ err });

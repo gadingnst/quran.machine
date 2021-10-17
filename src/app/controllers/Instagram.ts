@@ -71,7 +71,7 @@ class InstagramController extends Controller {
     return tags;
   }
 
-  private async publishPost() {
+  public async publishPost() {
     console.info('> Preparing surah...');
     const { surah, ayat, nameSurah, nameSurahId, tafsir, translation } = getRandomAyatFairly();
 

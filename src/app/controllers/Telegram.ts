@@ -1,7 +1,10 @@
+/* eslint-disable no-console */
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Axios from 'axios';
 import { Telegraf } from 'telegraf';
 import Controller from './Controller';
+import Instagram from './Instagram';
 import { TELEGRAM_API, TELEGRAM_BOT_TOKEN, WEBHOOK_URL } from 'utils/config';
 
 interface TelegramUser {
@@ -94,9 +97,30 @@ class TelegramController extends Controller {
 
   public listen = async (req: NextApiRequest, res: NextApiResponse) => {
     const response: TelegramBotListenerResponse = req.body;
-    // TODO handle message received
-    // console.log(response)
+    const [command] = response.message.text.split(' ');
+    const commandList = {
+      '/publish': this.publishRandom
+    };
+    if (command in commandList) {
+      commandList[command](response);
+    } else {
+      this.bot.sendMessage(response.message.chat.id, 'I dont get it. Please only use commands 😅');
+    }
     res.end();
+  }
+
+  private publishRandom = async (response: TelegramBotListenerResponse) => {
+    const chatId = response.message.chat.id;
+    const processMsg = await this.bot.sendMessage(response.message.chat.id, 'Please wait...');
+    try {
+      const result = await Instagram.publishPost();
+      const postUrl = `https://www.instagram.com/p/${result.media.code}`;
+      this.bot.deleteMessage(chatId, processMsg.message_id);
+      this.bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+    } catch (err) {
+      console.error(err);
+      this.bot.sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
+    }
   }
 }
 
