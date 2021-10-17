@@ -125,11 +125,16 @@ class TelegramController extends Controller {
       } else {
         bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
       }
+    } else {
+      await this.webhookFlush();
+      await this.webhookInit();
     }
     res.end();
   }
 
   private botStart = async (response: TelegramBotListenerResponse) => {
+    await this.webhookFlush();
+    await this.webhookInit();
     return this.bot
       .sendMessage(response.message.chat.id, 'Hello 👋. You can command me from the command list.');
   }
