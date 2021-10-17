@@ -81,6 +81,7 @@ class TelegramController extends Controller {
   private bot = () => {
     return new Telegraf(TELEGRAM_BOT_TOKEN).telegram;
   }
+
   public webhookInit = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const {
@@ -105,7 +106,7 @@ class TelegramController extends Controller {
     if (command in commandList) {
       await commandList[command](response);
     } else {
-      await this.bot().sendMessage(response.message.chat.id, 'I dont get it. Please only use commands 😅');
+      await this.bot().sendMessage(response.message.chat.id, 'I don\'t get it. Please use only commands 😅');
     }
     res.end();
   }

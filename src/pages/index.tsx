@@ -24,6 +24,9 @@ const Home: NextPage = () => {
           <p className={styles['text']}>
             <a href="https://instagram.com/quran.machine">Instagram Account</a>
           </p>
+          <p className={styles['text']}>
+            <a href="https://t.me/QuranMachine_bot">Telegram Account</a>
+          </p>
           <p className={styles['copyright']}>
             Copyright @ <a href="https://gading.dev" target="_blank" rel="noreferrer">gading.dev</a>
           </p>
