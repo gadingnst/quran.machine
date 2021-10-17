@@ -80,7 +80,7 @@ interface TelegramBotListenerResponse {
 let processing = false;
 
 class TelegramController extends Controller {
-  private bot = () => new Telegraf(TELEGRAM_BOT_TOKEN).telegram
+  private bot = new Telegraf(TELEGRAM_BOT_TOKEN).telegram
 
   private webhookInit = async () => {
     const { data } = await Axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`);
@@ -102,7 +102,7 @@ class TelegramController extends Controller {
 
   public listen = async (req: NextApiRequest, res: NextApiResponse) => {
     const response: TelegramBotListenerResponse = req.body;
-    const bot = this.bot();
+    const bot = this.bot;
     if (response?.message) {
       const [command] = response?.message?.text?.split(' ') || [];
       const commandList = {
@@ -120,13 +120,13 @@ class TelegramController extends Controller {
   }
 
   private botStart = async (response: TelegramBotListenerResponse) => {
-    const bot = this.bot();
+    const bot = this.bot;
     await this.webhookInit();
     return bot.sendMessage(response.message.chat.id, 'Hello 👋. You can command me from the command list.');
   }
 
   private publishRandom = async (response: TelegramBotListenerResponse) => {
-    const bot = this.bot();
+    const bot = this.bot;
     const chatId = response.message.chat.id;
     if (!processing) {
       processing = true;
