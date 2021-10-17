@@ -80,21 +80,20 @@ class InstagramController extends Controller {
       caption = `${translation} — ${nameSurah} (${nameSurahId}) [QS.${surah}:${ayat}]\n.\n.\n${this.getRandomTags()}`;
     }
 
-    const file = await getScreenshot({ surah, ayat });
-    console.info(`> Surah Prepared: Q.S ${surah}:${ayat}`);
-
-    const { latitude, longitude, searchQuery } = {
-    // set to jakarta location
-      latitude: -6.121435,
-      longitude: 106.774124,
-      searchQuery: 'Jakarta, Indonesia',
-    };
-
-    console.info('> Publishing surah...');
-    const instagram = await this.setup();
-    const [location] = await instagram.search.location(latitude, longitude, searchQuery);
-
     try {
+      const file = await getScreenshot({ surah, ayat });
+      console.info(`> Surah Prepared: Q.S ${surah}:${ayat}`);
+
+      const { latitude, longitude, searchQuery } = {
+        // set to jakarta location
+        latitude: -6.121435,
+        longitude: 106.774124,
+        searchQuery: 'Jakarta, Indonesia',
+      };
+
+      console.info('> Publishing surah...');
+      const instagram = await this.setup();
+      const [location] = await instagram.search.location(latitude, longitude, searchQuery);
       const result = await instagram.publish.photo({ file, caption, location });
       console.info(`> Surah published at: ${new Date().toLocaleString()}.\n`);
 

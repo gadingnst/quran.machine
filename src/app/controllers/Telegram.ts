@@ -77,6 +77,8 @@ interface TelegramBotListenerResponse {
   channel_post?: TelegramChannelPost
 }
 
+let processing = false;
+
 class TelegramController extends Controller {
   private bot = () => new Telegraf(TELEGRAM_BOT_TOKEN).telegram
 
@@ -101,17 +103,34 @@ class TelegramController extends Controller {
   public listen = async (req: NextApiRequest, res: NextApiResponse) => {
     const response: TelegramBotListenerResponse = req.body;
     const bot = this.bot();
-    const [command] = response.message.text.split(' ');
-    const commandList = {
-      '/publish': this.publishRandom
-    };
-    if (command in commandList) {
-      await commandList[command](response);
-    } else {
-      await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list 😅');
+    if (response?.message) {
+      const [command] = response?.message?.text.split(' ');
+      if (!processing) {
+        processing = true;
+        const commandList = {
+          '/start': this.botStart,
+          '/restart': this.botStart,
+          '/publish': this.publishRandom
+        };
+        if (command in commandList) {
+          await commandList[command](response);
+        } else {
+          await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
+        }
+        setTimeout(() => {
+          processing = false;
+        }, 60000);
+      } else {
+        await bot.sendMessage(response.message.chat.id, 'To prevent spam, please wait at least 60seconds until other process done. Thank you.');
+      }
     }
-    await this.webhookInit();
     res.end();
+  }
+
+  private botStart = async (response: TelegramBotListenerResponse) => {
+    const bot = this.bot();
+    await this.webhookInit();
+    return bot.sendMessage(response.message.chat.id, 'Hello! you can see command list first 😁');
   }
 
   private publishRandom = async (response: TelegramBotListenerResponse) => {
