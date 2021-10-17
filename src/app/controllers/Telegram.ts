@@ -104,7 +104,7 @@ class TelegramController extends Controller {
     const response: TelegramBotListenerResponse = req.body;
     const bot = this.bot();
     if (response?.message) {
-      const [command] = response?.message?.text?.split(' ');
+      const [command] = response?.message?.text?.split(' ') || [];
       const commandList = {
         '/start': this.botStart,
         '/restart': this.botStart,
