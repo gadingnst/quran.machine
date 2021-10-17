@@ -105,23 +105,15 @@ class TelegramController extends Controller {
     const bot = this.bot();
     if (response?.message) {
       const [command] = response?.message?.text.split(' ');
-      if (!processing) {
-        processing = true;
-        const commandList = {
-          '/start': this.botStart,
-          '/restart': this.botStart,
-          '/publish': this.publishRandom
-        };
-        if (command in commandList) {
-          await commandList[command](response);
-        } else {
-          await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
-        }
-        setTimeout(() => {
-          processing = false;
-        }, 60000);
+      const commandList = {
+        '/start': this.botStart,
+        '/restart': this.botStart,
+        '/publish': this.publishRandom
+      };
+      if (command in commandList) {
+        await commandList[command](response);
       } else {
-        await bot.sendMessage(response.message.chat.id, 'To prevent spam, please wait at least 60seconds until other process done. Thank you.');
+        await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
       }
     }
     res.end();
@@ -130,21 +122,29 @@ class TelegramController extends Controller {
   private botStart = async (response: TelegramBotListenerResponse) => {
     const bot = this.bot();
     await this.webhookInit();
-    return bot.sendMessage(response.message.chat.id, 'Hello! you can see command list first 😁');
+    return bot.sendMessage(response.message.chat.id, 'Hello 👋. You can command me from the command list.');
   }
 
   private publishRandom = async (response: TelegramBotListenerResponse) => {
     const bot = this.bot();
     const chatId = response.message.chat.id;
-    const processMsg = await bot.sendMessage(chatId, 'Please wait...');
-    try {
-      const result = await Instagram.publishPost();
-      const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-      await bot.deleteMessage(chatId, processMsg.message_id);
-      return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
-    } catch (err) {
-      console.error(err);
-      return bot.sendMessage(chatId, `Something went wrong. Try again later. (${JSON.stringify(err, null, 2)})`);
+    if (!processing) {
+      processing = true;
+      try {
+        const processMsg = await bot.sendMessage(chatId, 'Please wait...');
+        const result = await Instagram.publishPost();
+        const postUrl = `https://www.instagram.com/p/${result.media.code}`;
+        await bot.deleteMessage(chatId, processMsg.message_id);
+        setTimeout(() => {
+          processing = false;
+        }, 60000);
+        return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+      } catch (err) {
+        console.error(err);
+        return bot.sendMessage(chatId, `Something went wrong. Try again later. (${JSON.stringify(err, null, 2)})`);
+      }
+    } else {
+      await bot.sendMessage(response.message.chat.id, 'To prevent spam, please wait at least 60seconds until other process done. Thank you.');
     }
   }
 }
