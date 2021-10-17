@@ -99,6 +99,7 @@ class TelegramController extends Controller {
 
   public listen = async (req: NextApiRequest, res: NextApiResponse) => {
     const response: TelegramBotListenerResponse = req.body;
+    const bot = this.bot();
     const [command] = response.message.text.split(' ');
     const commandList = {
       '/publish': this.publishRandom
@@ -106,22 +107,25 @@ class TelegramController extends Controller {
     if (command in commandList) {
       await commandList[command](response);
     } else {
-      await this.bot().sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list 😅');
+      await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list 😅');
     }
     res.end();
   }
 
   private publishRandom = async (response: TelegramBotListenerResponse) => {
+    const bot = this.bot();
     const chatId = response.message.chat.id;
-    const processMsg = await this.bot().sendMessage(response.message.chat.id, 'Please wait...');
+    const processMsg = await bot.sendMessage(chatId, 'Please wait...');
     try {
       const result = await Instagram.publishPost();
       const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-      await this.bot().deleteMessage(chatId, processMsg.message_id);
-      return this.bot().sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+      return Promise.all([
+        bot.deleteMessage(chatId, processMsg.message_id),
+        bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`)
+      ]);
     } catch (err) {
       console.error(err);
-      return this.bot().sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
+      return bot.sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
     }
   }
 }
