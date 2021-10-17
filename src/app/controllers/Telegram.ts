@@ -7,6 +7,10 @@ import Controller from './Controller';
 import Instagram from './Instagram';
 import { TELEGRAM_API, TELEGRAM_BOT_TOKEN, WEBHOOK_URL } from 'utils/config';
 
+interface ServerParams {
+  req?: NextApiRequest
+  res?: NextApiResponse
+}
 interface TelegramUser {
   id: number
   first_name: string
@@ -111,7 +115,7 @@ class TelegramController extends Controller {
         '/publish': this.publishRandom
       };
       if (command && command in commandList) {
-        await commandList[command](response);
+        await commandList[command](response, { req, res });
       } else {
         bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
       }
@@ -124,7 +128,7 @@ class TelegramController extends Controller {
       .sendMessage(response.message.chat.id, 'Hello 👋. You can command me from the command list.');
   }
 
-  private publishRandom = async (response: TelegramBotListenerResponse) => {
+  private publishRandom = async (response: TelegramBotListenerResponse, server: ServerParams) => {
     const bot = this.bot;
     const chatId = response.message.chat.id;
     if (!processing) {
@@ -134,13 +138,15 @@ class TelegramController extends Controller {
           throw { timeout: true };
         }, 9000);
         const processMsg = await bot.sendMessage(response.message.chat.id, 'Please wait...');
-        const result = await Instagram.publishPost();
-        const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-        await bot.deleteMessage(chatId, processMsg.message_id);
-        setTimeout(() => {
-          processing = false;
-        }, 60000);
-        return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+        Instagram.publishPost().then((result) => {
+          const postUrl = `https://www.instagram.com/p/${result.media.code}`;
+          bot.deleteMessage(chatId, processMsg.message_id);
+          setTimeout(() => {
+            processing = false;
+          }, 60000);
+          return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+        });
+        return server.res.end();
       } catch (err) {
         console.error(err);
         if (processing && err.timeout) {
