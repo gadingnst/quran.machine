@@ -106,7 +106,7 @@ class TelegramController extends Controller {
     if (command in commandList) {
       await commandList[command](response);
     } else {
-      await this.bot().sendMessage(response.message.chat.id, 'I don\'t get it. Please use only commands 😅');
+      await this.bot().sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list 😅');
     }
     res.end();
   }
