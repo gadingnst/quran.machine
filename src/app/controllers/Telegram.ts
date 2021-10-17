@@ -108,9 +108,9 @@ class TelegramController extends Controller {
     if (command in commandList) {
       await commandList[command](response);
     } else {
-      await this.webhookInit();
       await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list 😅');
     }
+    await this.webhookInit();
     res.end();
   }
 
@@ -121,13 +121,11 @@ class TelegramController extends Controller {
     try {
       const result = await Instagram.publishPost();
       const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-      return Promise.all([
-        bot.deleteMessage(chatId, processMsg.message_id),
-        bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`)
-      ]);
+      await bot.deleteMessage(chatId, processMsg.message_id);
+      return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
     } catch (err) {
       console.error(err);
-      return bot.sendMessage(chatId, `Something went wrong. Try again later. (${err})`);
+      return bot.sendMessage(chatId, `Something went wrong. Try again later. (${JSON.stringify(err, null, 2)})`);
     }
   }
 }
