@@ -128,7 +128,7 @@ class TelegramController extends Controller {
       .sendMessage(response.message.chat.id, 'Hello 👋. You can command me from the command list.');
   }
 
-  private publishRandom = async (response: TelegramBotListenerResponse, server: ServerParams) => {
+  private publishRandom = async (response: TelegramBotListenerResponse) => {
     const bot = this.bot;
     const chatId = response.message.chat.id;
     if (!processing) {
@@ -138,7 +138,7 @@ class TelegramController extends Controller {
           throw { timeout: true };
         }, 9000);
         const processMsg = await bot.sendMessage(response.message.chat.id, 'Please wait...');
-        Instagram.publishPost().then((result) => {
+        return Instagram.publishPost().then((result) => {
           const postUrl = `https://www.instagram.com/p/${result.media.code}`;
           bot.deleteMessage(chatId, processMsg.message_id);
           setTimeout(() => {
@@ -146,7 +146,6 @@ class TelegramController extends Controller {
           }, 60000);
           return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
         });
-        return server.res.end();
       } catch (err) {
         console.error(err);
         if (processing && err.timeout) {
