@@ -78,15 +78,16 @@ interface TelegramBotListenerResponse {
 }
 
 class TelegramController extends Controller {
-  private bot = () => {
-    return new Telegraf(TELEGRAM_BOT_TOKEN).telegram;
+  private bot = () => new Telegraf(TELEGRAM_BOT_TOKEN).telegram
+
+  private webhookInit = async () => {
+    const { data } = await Axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`);
+    return data;
   }
 
-  public webhookInit = async (req: NextApiRequest, res: NextApiResponse) => {
+  public init = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-      const {
-        data: payload
-      } = await Axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`);
+      const payload = await this.webhookInit();
       this.sendJSON(res, {
         code: 200,
         message: 'OK.',
@@ -107,6 +108,7 @@ class TelegramController extends Controller {
     if (command in commandList) {
       await commandList[command](response);
     } else {
+      await this.webhookInit();
       await bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list 😅');
     }
     res.end();

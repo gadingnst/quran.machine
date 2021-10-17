@@ -8,6 +8,6 @@ const withVerifySecret = withMiddleware(verifySecretKey);
 const withVerifyBotToken = withMiddleware(verifyTelegramBotToken);
 
 export default withMethod({
-  GET: withVerifySecret(TelegramController.webhookInit),
+  GET: withVerifySecret(TelegramController.init),
   POST: withVerifyBotToken(TelegramController.listen)
 });
