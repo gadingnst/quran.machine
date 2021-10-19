@@ -153,6 +153,7 @@ class TelegramController extends Controller {
     const chatId = response.message.chat.id;
     const isProcessing = await this.getGlobalProcess();
     if (!isProcessing) {
+      let localProcess = true;
       try {
         this.setGlobalProcess(true);
         const processMsg = await bot.sendMessage(response.message.chat.id, 'Please wait...');
@@ -161,15 +162,19 @@ class TelegramController extends Controller {
         }, 60000 * 5);
         setTimeout(() => {
           bot.deleteMessage(chatId, processMsg.message_id);
-          bot.sendMessage(
-            chatId,
-            `I've receive your /publish command. But still processing on it. If there's no Done response from me, you can check the newest post in https://www.instagram.com/quran.machine/. Maybe the newest is your requests, thank you. ☺️`
-          );
+          if (localProcess) {
+            bot.sendMessage(
+              chatId,
+              `I've receive your /publish command. But still processing on it. If there's no Done response from me, you can check the newest post in https://www.instagram.com/quran.machine/. Maybe the newest is your requests, thank you. ☺️`
+            );
+          }
         }, 7000);
         return Instagram.publishPost().then((result) => {
           const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-
-          return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
+          return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`)
+            .then(() => {
+              localProcess = false;
+            });
         });
       } catch (err) {
         console.error(err);
