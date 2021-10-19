@@ -159,9 +159,16 @@ class TelegramController extends Controller {
         setTimeout(() => {
           this.setGlobalProcess(false);
         }, 60000 * 5);
+        setTimeout(() => {
+          bot.deleteMessage(chatId, processMsg.message_id);
+          bot.sendMessage(
+            chatId,
+            `I've receive your /publish command. But still processing on it. If there's no Done response from me, you can check the newest post in https://www.instagram.com/quran.machine/. Maybe the newest is your requests, thank you. ☺️`
+          );
+        }, 5000);
         return Instagram.publishPost().then((result) => {
           const postUrl = `https://www.instagram.com/p/${result.media.code}`;
-          bot.deleteMessage(chatId, processMsg.message_id);
+
           return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
         });
       } catch (err) {
