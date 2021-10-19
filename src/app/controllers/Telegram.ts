@@ -165,7 +165,7 @@ class TelegramController extends Controller {
             chatId,
             `I've receive your /publish command. But still processing on it. If there's no Done response from me, you can check the newest post in https://www.instagram.com/quran.machine/. Maybe the newest is your requests, thank you. ☺️`
           );
-        }, 5000);
+        }, 7000);
         return Instagram.publishPost().then((result) => {
           const postUrl = `https://www.instagram.com/p/${result.media.code}`;
 
