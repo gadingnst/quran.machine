@@ -6,6 +6,15 @@ import { Telegraf } from 'telegraf';
 import Controller from './Controller';
 import Instagram from './Instagram';
 import { TELEGRAM_API, TELEGRAM_BOT_TOKEN, WEBHOOK_URL } from 'utils/config';
+import GlobalProcess from 'app/models/GlobalProcess';
+import TelegramUser from 'app/models/TelegramUser';
+
+/*
+  BOT COMMANDS
+  start - Awake the bot.
+  publish - Publish random verses to Instagram.
+  rules - See bot rules and limitations.
+*/
 
 interface ServerParams {
   req?: NextApiRequest
@@ -81,8 +90,6 @@ interface TelegramBotListenerResponse {
   channel_post?: TelegramChannelPost
 }
 
-let processing = false;
-
 class TelegramController extends Controller {
   private bot = new Telegraf(TELEGRAM_BOT_TOKEN).telegram
 
@@ -92,7 +99,10 @@ class TelegramController extends Controller {
   }
 
   private webhookFlush = async () => {
-    const { data } = await Axios.get(`${TELEGRAM_API}/deleteWebhook?drop_pending_updates=true`);
+    const [{ data }] = await Promise.all([
+      Axios.get(`${TELEGRAM_API}/deleteWebhook?drop_pending_updates=true`),
+      this.setGlobalProcess(false)
+    ]);
     return data;
   }
 
@@ -117,33 +127,38 @@ class TelegramController extends Controller {
       const [command] = response?.message?.text?.split(' ') || [];
       const commandList = {
         '/start': this.botStart,
-        '/restart': this.botStart,
-        '/publish': this.publishRandom
+        '/publish': this.publish,
+        '/rules': this.rules
       };
       if (command && command in commandList) {
         await commandList[command](response, { req, res } as ServerParams);
       } else {
-        bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the list.');
+        bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the "Menu" list.');
       }
     }
     res.end();
   }
 
   private botStart = async (response: TelegramBotListenerResponse) => {
+    await TelegramUser.syncUser(response.message.from);
     return this.bot
-      .sendMessage(response.message.chat.id, 'Hello 👋. You can command me from the command list.');
+      .sendMessage(
+        response.message.chat.id,
+        `Hello ${response.message.from.first_name} 👋. You can see all commands from the "Menu" list.`
+      );
   }
 
-  private publishRandom = async (response: TelegramBotListenerResponse) => {
+  private publish = async (response: TelegramBotListenerResponse) => {
     const bot = this.bot;
     const chatId = response.message.chat.id;
-    if (!processing) {
-      processing = true;
-      setTimeout(() => {
-        processing = false;
-      }, 60000 * 5);
+    const isProcessing = await this.getGlobalProcess();
+    if (!isProcessing) {
       try {
+        this.setGlobalProcess(true);
         const processMsg = await bot.sendMessage(response.message.chat.id, 'Please wait...');
+        setTimeout(() => {
+          this.setGlobalProcess(false);
+        }, 60000 * 5);
         return Instagram.publishPost().then((result) => {
           const postUrl = `https://www.instagram.com/p/${result.media.code}`;
           bot.deleteMessage(chatId, processMsg.message_id);
@@ -153,10 +168,29 @@ class TelegramController extends Controller {
         console.error(err);
         return bot.sendMessage(chatId, `Something went wrong. Try again later. (${JSON.stringify(err, null, 2)})`);
       }
-    } else {
-      return bot.sendMessage(response.message.chat.id, 'To prevent spam, please wait at least 5 minutes until other process done. Thank you.');
     }
   }
+
+  private rules = async (response: TelegramBotListenerResponse) => {
+    return this.bot.sendMessage(
+      response.message.chat.id,
+      '--- BOT RULES ---\n' +
+      '\n\n- If the Bot doesn\'t response you, please be patient. Bot needs time to awake, at least 5 minutes.' +
+      '\n\n- To prevent spam, please wait at least 5 minutes until other publish process done. (Bot will not response /publish command for 5 minutes).'
+    );
+  }
+
+  private getGlobalProcess = async () => {
+    const data = await GlobalProcess.checkIsProcessing('telegram');
+    if (!data) {
+      await GlobalProcess.insert({ instance: 'telegram', isProcessing: false });
+      return false;
+    }
+    return data.isProcessing;
+  }
+
+  private setGlobalProcess = async (process: boolean) =>
+    GlobalProcess.updateProcess('telegram', process)
 }
 
 export default new TelegramController();
