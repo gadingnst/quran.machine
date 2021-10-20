@@ -31,8 +31,12 @@ export type QuranJSON = {
 export type ScreenShotParams = {
   surah: number|string
   ayat: number|string
+  options?: {
+    mode: 'light'|'dark'
+  }
 }
 
+const possibleMode = ['light', 'dark'];
 const possibleColors = ['red', 'green', 'blue'];
 
 export const getRandomAyatFairly = () => {
@@ -59,20 +63,23 @@ const requestBuffer = (url: string) =>
   Axios.get(url, { responseType: 'arraybuffer' });
 
 export const getScreenshot = async (params: ScreenShotParams) => {
-  const { surah, ayat } = params;
+  const { surah, ayat, options } = params;
+  const { mode: modeParam } = options || {};
+
+  const mode = modeParam || possibleMode[~~(Math.random() * possibleMode.length)];
 
   const doGetScreenshot = async () => {
-    const resp = await requestBuffer(`${SCREENSHOT_API}/screenshot/${surah}/${ayat}`);
+    const resp = await requestBuffer(`${SCREENSHOT_API}/screenshot/${surah}/${ayat}?mode=${mode}`);
     const bufferImg = imgToBuffer(resp.data as string);
     uploadFromBuffer(bufferImg, {
       name: ayat,
-      folder: `verses/${surah}`
+      folder: `verses/${mode}/${surah}`
     });
     return bufferImg;
   };
 
   try {
-    const buffer = await requestBuffer(getVersesPath(surah, ayat))
+    const buffer = await requestBuffer(getVersesPath(surah, ayat, { mode }))
       .then((res) => {
         if (res?.data) return imgToBuffer(res.data as string);
         return doGetScreenshot();

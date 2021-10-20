@@ -8,6 +8,11 @@ export interface UploadParams {
   format?: string
 }
 
+export interface GetVersesPathParams {
+  mode: string
+  format?: string
+}
+
 const Cloudinary = CloudinaryInstance.v2;
 const cloudPath = 'quran-machine';
 
@@ -17,8 +22,8 @@ Cloudinary.config({
   api_secret: CLOUDINARY_API_SECRET
 });
 
-export const getVersesPath = (surah: number|string, ayat: number|string, format = 'png') =>
-  `${PUBLIC_UPLOAD_PATH}/verses/${surah}/${ayat}.${format}`;
+export const getVersesPath = (surah: number|string, ayat: number|string, opts: GetVersesPathParams) =>
+  `${PUBLIC_UPLOAD_PATH}/verses/${opts.mode}/${surah}/${ayat}.${opts.format || 'png'}`;
 
 export const uploadFromBuffer = (buffer: Buffer, options: UploadParams): Promise<UploadApiResponse> =>
   new Promise((resolve, reject) => {

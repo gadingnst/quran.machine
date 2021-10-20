@@ -100,7 +100,6 @@ class InstagramController extends Controller {
       return result;
     } catch (reason) {
       const { response } = reason;
-
       if (response?.body) {
         const { message } = response.body;
         if (message.includes('aspect ratio')) {
