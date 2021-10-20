@@ -58,7 +58,7 @@ const requestBuffer = (url: string) =>
 export const getScreenshot = async (params: ScreenShotParams) => {
   const { surah, ayat } = params;
 
-  const getScreenshot = async () => {
+  const doGetScreenshot = async () => {
     const resp = await requestBuffer(`${SCREENSHOT_API}/screenshot/${surah}/${ayat}`);
     const bufferImg = imgToBuffer(resp.data as string);
     uploadFromBuffer(bufferImg, {
@@ -72,9 +72,9 @@ export const getScreenshot = async (params: ScreenShotParams) => {
     const buffer = await requestBuffer(getVersesPath(surah, ayat))
       .then((res) => {
         if (res?.data) return imgToBuffer(res.data as string);
-        return getScreenshot();
+        return doGetScreenshot();
       })
-      .catch(getScreenshot);
+      .catch(doGetScreenshot);
 
     return buffer;
   } catch (err) {
