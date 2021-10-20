@@ -58,7 +58,7 @@ export const getRandomAyatFairly = () => {
   };
 };
 
-const imgToBuffer = (data: string) => Buffer.from(data, 'base64');
+const imgToBuffer = (data: string|unknown) => Buffer.from(data as string, 'base64');
 const requestBuffer = (url: string) =>
   Axios.get(url, { responseType: 'arraybuffer' });
 
@@ -70,7 +70,7 @@ export const getScreenshot = async (params: ScreenShotParams) => {
 
   const doGetScreenshot = async () => {
     const resp = await requestBuffer(`${SCREENSHOT_API}/screenshot/${surah}/${ayat}?mode=${mode}`);
-    const bufferImg = imgToBuffer(resp.data as string);
+    const bufferImg = imgToBuffer(resp.data);
     uploadFromBuffer(bufferImg, {
       name: ayat,
       folder: `verses/${mode}/${surah}`
@@ -81,7 +81,7 @@ export const getScreenshot = async (params: ScreenShotParams) => {
   try {
     const buffer = await requestBuffer(getVersesPath(surah, ayat, { mode }))
       .then((res) => {
-        if (res?.data) return imgToBuffer(res.data as string);
+        if (res?.data) return imgToBuffer(res.data);
         return doGetScreenshot();
       })
       .catch(doGetScreenshot);
