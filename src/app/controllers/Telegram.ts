@@ -165,7 +165,7 @@ class TelegramController extends Controller {
             chatId,
             `I've receive your /publish command. But still processing on it. If there's no Done response from me, you can check the newest post in https://www.instagram.com/quran.machine/.\n\nMaybe the newest is your request, thank you. ☺️`
           );
-        }, 7000);
+        }, 8000);
         return Instagram.publishPost().then((result) => {
           const postUrl = `https://www.instagram.com/p/${result.media.code}`;
           return bot.sendMessage(chatId, `Done! you can see the post in: ${postUrl}`);
@@ -180,9 +180,9 @@ class TelegramController extends Controller {
   private rules = async (response: TelegramBotListenerResponse) => {
     return this.bot.sendMessage(
       response.message.chat.id,
-      '--- BOT RULES ---\n' +
-      '\n\n- If the Bot doesn\'t response you, please be patient. Bot needs time to awake, at least 5 minutes.' +
-      '\n\n- To prevent spam, please wait at least 5 minutes until other publish process done. (Bot will not response /publish command for 5 minutes).'
+      '--- MY RULES ---\n' +
+      '\n\n- If I don\'t response you, please be patient. I need time to awake, at least 5 minutes.' +
+      '\n\n- To prevent spam, please wait at least 5 minutes until other publish process done. (I will not response /publish command for 5 minutes).'
     );
   }
 
