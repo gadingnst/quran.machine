@@ -82,7 +82,7 @@ export const getScreenshot = async (params: ScreenShotParams) => {
     const image = await Jimp.read(buffer as Buffer);
     return image
       .color([{
-        apply: <any>possibleColors[~~(Math.random() * possibleColors.length)],
+        apply: possibleColors[~~(Math.random() * possibleColors.length)] as any,
         params: [~~(Math.random() * 100)]
       }])
       .getBufferAsync(Jimp.AUTO as any);
