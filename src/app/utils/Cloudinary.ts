@@ -1,6 +1,11 @@
 import CloudinaryInstance, { UploadApiResponse } from 'cloudinary';
 import Streamifier from 'streamifier';
-import { CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME, PUBLIC_UPLOAD_PATH } from 'utils/config';
+import {
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+  CLOUDINARY_CLOUD_NAME,
+  PUBLIC_UPLOAD_PATH
+} from 'utils/config';
 
 export interface UploadParams {
   name: string|number
@@ -37,7 +42,7 @@ export const uploadFromBuffer = (buffer: Buffer, options: UploadParams): Promise
       (error: Error, result: UploadApiResponse) => {
         if (result) resolve(result);
         else reject(error);
-      },
+      }
     );
     Streamifier.createReadStream(buffer).pipe(uploadStream);
   });

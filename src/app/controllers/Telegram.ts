@@ -124,13 +124,13 @@ class TelegramController extends Controller {
     const response: TelegramBotListenerResponse = req.body;
     const bot = this.bot;
     if (response?.message) {
-      const [command] = response?.message?.text?.split(' ') || [];
+      const [command = ''] = response?.message?.text?.split(' ') || [];
       const commandList = {
         '/start': this.botStart,
         '/publish': this.publish,
         '/rules': this.rules
       };
-      if (command && command in commandList) {
+      if (command in commandList) {
         await commandList[command](response, { req, res } as ServerParams);
       } else {
         bot.sendMessage(response.message.chat.id, 'I don\'t get it. Please use only command on the "Menu" list.');
