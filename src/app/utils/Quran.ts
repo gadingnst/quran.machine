@@ -5,6 +5,7 @@
 import Axios from 'axios';
 import { SCREENSHOT_API } from 'utils/config';
 import quran from 'app/data/quran-tafsir.json';
+import { getVersesPath, uploadFromBuffer } from './Cloudinary';
 
 export type ImageType = 'jpeg'|'png'
 
@@ -50,13 +51,31 @@ export const getRandomAyatFairly = () => {
   };
 };
 
+const imgToBuffer = (data: string) => Buffer.from(data, 'base64');
+const requestBuffer = (url: string) =>
+  Axios.get(url, { responseType: 'arraybuffer' });
+
 export const getScreenshot = async (params: ScreenShotParams) => {
   const { surah, ayat } = params;
-  try {
-    const response = await Axios.get(`${SCREENSHOT_API}/screenshot/${surah}/${ayat}`, {
-      responseType: 'arraybuffer'
+
+  const getScreenshot = async () => {
+    const resp = await requestBuffer(`${SCREENSHOT_API}/screenshot/${surah}/${ayat}`);
+    const bufferImg = imgToBuffer(resp.data as string);
+    uploadFromBuffer(bufferImg, {
+      name: ayat,
+      folder: `verses/${surah}`
     });
-    const buffer = Buffer.from(response.data as string, 'base64');
+    return bufferImg;
+  };
+
+  try {
+    const buffer = await requestBuffer(getVersesPath(surah, ayat))
+      .then((res) => {
+        if (res?.data) return imgToBuffer(res.data as string);
+        return getScreenshot();
+      })
+      .catch(getScreenshot);
+
     return buffer;
   } catch (err) {
     console.error({ err });
