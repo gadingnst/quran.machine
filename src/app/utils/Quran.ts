@@ -3,6 +3,7 @@
 // Value: translation
 
 import Axios from 'axios';
+import Jimp from 'jimp';
 import { SCREENSHOT_API } from 'utils/config';
 import quran from 'app/data/quran-tafsir.json';
 import { getVersesPath, uploadFromBuffer } from './Cloudinary';
@@ -31,6 +32,8 @@ export type ScreenShotParams = {
   surah: number|string
   ayat: number|string
 }
+
+const possibleColors = ['red', 'green', 'blue'];
 
 export const getRandomAyatFairly = () => {
   const flatAyats = Object.entries(quran);
@@ -76,7 +79,13 @@ export const getScreenshot = async (params: ScreenShotParams) => {
       })
       .catch(doGetScreenshot);
 
-    return buffer;
+    const image = await Jimp.read(buffer as Buffer);
+    return image
+      .color([{
+        apply: <any>possibleColors[~~(Math.random() * possibleColors.length)],
+        params: [~~(Math.random() * 100)]
+      }])
+      .getBufferAsync(Jimp.AUTO as any);
   } catch (err) {
     console.error({ err });
     throw err;
