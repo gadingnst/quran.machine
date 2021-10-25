@@ -9,7 +9,7 @@
     "bot:connect": "ts-node src/app/utils/generate.ts"
   },
   "dependencies": {
-    "axios": "^0.23.0",
+    "axios": "0.24.0",
     "cloudinary": "^1.27.1",
     "dotenv": "^10.0.0",
     "instagram-private-api": "^1.45.1",
