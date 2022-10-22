@@ -22,10 +22,10 @@ npm run install
 
 ## Support Me
 ### Global
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B71P7PB)
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gadingnst)
 ### Indonesia
-- [Trakteer](https://trakteer.id/sutanlab)
-- [Karyakarsa](https://karyakarsa.com/sutanlab)
+- [Trakteer](https://trakteer.id/gadingnst)
+- [Karyakarsa](https://karyakarsa.com/gadingnst)
 
 ---
 Best Regards, Sutan Gading Fadhillah Nasution.
