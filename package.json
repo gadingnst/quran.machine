@@ -19,7 +19,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "streamifier": "^0.1.1",
-    "telegraf": "^4.4.2"
+    "telegraf": "4.5.2"
   },
   "devDependencies": {
     "@types/react": "17.0.29",
